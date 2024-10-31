@@ -95,8 +95,15 @@ void mergeSort(vector<double>& arr, int left, int right) {
 	}
 }
 
-void displayNumbers() {
-	return;
+void displayNumbers(vector<double> allData) {
+	cout << "*** Summarized Statistics ***" << endl << endl;
+
+	cout << "The orderly sorted list of " << allData.size() << " values is: " << endl;
+
+	for (const double val : allData) { // Iterate through each object
+		cout << val << " ";
+	}
+	cout << endl;
 }
 
 void writeFile() {
@@ -137,12 +144,7 @@ int main () {
 		mergeSort(allData, 0, allData.size() - 1);
 	}
 
-	for (const double val : allData) { // Iterate through each object
-		cout << val << endl;
-
-	}
-	//mergeSort();
-	//displayNumbers();
+	displayNumbers(allData);
 	//writeFile();
 }
 
