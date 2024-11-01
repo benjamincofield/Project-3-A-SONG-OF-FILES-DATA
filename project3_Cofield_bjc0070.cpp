@@ -36,7 +36,15 @@ bool isMalform(FileData& fileData) {
 		return true;
 	}
 
+	// Check for tab character
 	string line;
+	while (getline(inputFile, line)) {}
+	size_t tabPos = line.find('\t');
+	if (tabPos == string::npos) {
+		cout << "Not an input file. Illegal content/structure detected. Please try again."<< endl;
+		inputFile.close();
+		return true;
+	}
 	double number;
 
 	while (getline(inputFile, line)) {
