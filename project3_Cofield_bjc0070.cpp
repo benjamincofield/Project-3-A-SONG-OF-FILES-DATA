@@ -80,8 +80,8 @@ void readFile(FileData &fileData) {
 
 	// Display list of values read from file
 	cout << "The list of " << fileData.data.size() << " values in file " << fileData.fileName << " is: " << endl;
-	for (const double val : fileData.data) {
-		cout << val << endl;
+	for (int i = 0; i < fileData.data.size(); ++i) {
+		cout << fileData.data[i] << endl;
 	}
 	cout << endl;
 
