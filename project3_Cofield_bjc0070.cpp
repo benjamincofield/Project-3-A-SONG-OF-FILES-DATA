@@ -3,7 +3,6 @@
 // Compile: g++...
 // Sources:
 // *
-#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -23,9 +22,43 @@ struct FileData {
 //Global variables to hold file data for input/output
 FileData input_1, input_2, outputData;
 
+//---------------------------------------------------------------------------------------------------------------------------------------//
+// Find Any Malforms
+bool isMalform(FileData& fileData) {
+	ifstream inputFile(fileData.fileName);
 
-//----- FUNCTIONS ----//
+	if (!inputFile.is_open()) {
+		cout << "File not found. Please try again." << endl;
+		return true;
+	}
+
+	string line;
+	double number;
+
+	while (getline(inputFile, line)) {
+		//Parse each line to double
+		try {
+			number = stod(line);
+		} catch(...) {
+			cout << "Not an input file. Illegal content/structure detected. Please try again."<< endl;
+			inputFile.close();
+			return true; // YES Malform
+		}
+	}
+	inputFile.close();
+	return false; // NO Malform
+
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------------------------//
+// Read All Files
 void readFile(FileData &fileData) {
+
+	// Check for malformations
+	if (isMalform(fileData)) {
+		return;
+	}
 
 	ifstream inStream;
 	// Open file for reading
@@ -55,62 +88,8 @@ void readFile(FileData &fileData) {
 
 	}
 
-
-void merge (vector<double>& arr, int left, int mid, int right) {
-	int n1 = mid - left + 1;
-	int n2 = right - mid;
-
-	vector<double> L(n1), R(n2);
-
-	for (int i = 0; i < n1; i++)
-		L[i] = arr[left + i];
-	for (int j = 0; j < n2; j++)
-		R[j] = arr[mid + 1 + j];
-
-	int i = 0, j = 0, k = left;
-
-	while (i < n1 && j < n2) {
-		if (L[i] <= R[j]) {
-			arr[k++] = L[i++];
-		} else {
-			arr[k++] = R[j++];
-		}
-	}
-
-	while (i < n1) {
-		arr[k++] = L[i++];
-	}
-
-	while (j < n2) {
-		arr[k++] = R[j++];
-	}
-}
-
-void mergeSort(vector<double>& arr, int left, int right) {
-	if (left < right) {
-		int mid = left + (right - left) / 2;
-		mergeSort(arr, left, mid);
-		mergeSort(arr, mid + 1, right);
-		merge(arr, left, mid, right);
-	}
-}
-
-void displayNumbers(vector<double> allData) {
-	cout << "*** Summarized Statistics ***" << endl << endl;
-
-	cout << "The orderly sorted list of " << allData.size() << " values is: " << endl;
-
-	for (const double val : allData) { // Iterate through each object
-		cout << val << " ";
-	}
-	cout << endl;
-}
-
-void writeFile() {
-	return;
-}
-
-//----- MAIN ----//
+//---------------------------------------------------------------------------------------------------------------------------------------//
+// Main Function
 int main () {
 	int numOfFiles;
 	vector<FileData> filesData;
@@ -134,19 +113,4 @@ int main () {
 		readFile(fileData);
 		filesData.push_back(fileData);
 	}
-
-
-	//readFile(input_1);
-	//readFile(input_2);
-
-	// Merge Sort & Display The Numbers
-	if (!filesData.empty()) {
-		mergeSort(allData, 0, allData.size() - 1);
-	}
-
-	displayNumbers(allData);
-	//writeFile();
 }
-
-
-
