@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -19,6 +20,7 @@ vector<double> allData;
 struct FileData {
 	vector<double> data;
 	string fileName;
+	vector <string> timestamps;
 };
 
 //Global variables to hold file data for input/output
@@ -72,16 +74,23 @@ void readFile(FileData &fileData) {
 	}
 
 	// Read data values from file -> data array
-	double value;
-	while (inStream >> value) {
-		fileData.data.push_back(value);
-		allData.push_back(value);
+	string line;
+	while (getline(inStream, line)) {
+		stringstream ss(line);
+		string timestamp;
+		double value;
+
+		if (ss >> value >> timestamp) {
+			fileData.data.push_back(value);
+			fileData.timestamps.push_back(timestamp); // Save the timestamp
+			allData.push_back(value);
+		}
 	}
 
 	// Display list of values read from file
 	cout << "The list of " << fileData.data.size() << " values in file " << fileData.fileName << " is: " << endl;
 	for (int i = 0; i < fileData.data.size(); ++i) {
-		cout << fileData.data[i] << endl;
+		cout << fileData.data[i] << "\t" << fileData.timestamps[i] << endl;
 	}
 	cout << endl;
 
@@ -248,6 +257,8 @@ int main () {
 	cin >> outputFileName;
 	writeFile(outputFileName, allData);
 }
+
+
 
 
 
