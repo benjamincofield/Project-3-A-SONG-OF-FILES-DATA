@@ -191,8 +191,24 @@ void displayNumbers(vector<double>& allData) {
 
 
 
-void writeFile() {
-	return;
+void writeFile(const string &outputFileName, vector<double>& allData) {
+	ofstream outStream(outputFileName);
+
+	//Write sorted data
+	outStream << "*** Summarized Statistics ***:\n\n"
+	<< "The orderly sorted list of " << allData.size() << " is:" << endl;
+	for (const double val : allData) {
+		outStream << val << " ";
+	}
+	outStream << endl << endl;
+
+	outStream << "The mean is " << calculateMean(allData) << endl;
+	outStream << "The median is " << calculateMedian(allData) << endl;
+	outStream << "The mode is " << calculateMode(allData) << endl;
+
+	cout << "File " << outputFileName << " has been written to disk ***" << endl
+	<< "*** Goodbye ***";
+	outStream.close();
 }
 
 //----- MAIN ----//
@@ -226,7 +242,11 @@ int main () {
 	}
 
 	displayNumbers(allData);
-	//writeFile();
+
+	cout << "Enter the output filename to save: ";
+	string outputFileName;
+	cin >> outputFileName;
+	writeFile(outputFileName, allData);
 }
 
 
