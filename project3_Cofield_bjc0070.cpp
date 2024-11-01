@@ -52,6 +52,7 @@ bool isMalform(FileData& fileData) {
 
 }
 
+
 //---------------------------------------------------------------------------------------------------------------------------------------//
 // Read All Files
 void readFile(FileData &fileData) {
@@ -131,6 +132,45 @@ void mergeSort(vector<double>& arr, int left, int right) {
 		merge(arr, left, mid, right);
 	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------------//
+// Calculate the Mean
+double calculateMean(vector<double>& arr) {
+	double sum = 0.0;
+	for (double val : arr) {
+		sum += val;
+	}
+	return (sum / arr.size());
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------//
+// Calculate the Median
+double calculateMedian(vector<double>& arr) {
+	if (arr.empty()) return 0;
+	if (arr.size() % 2 == 1) {
+		return arr[arr.size() / 2];
+	} else {
+		return (arr[arr.size() / 2 - 1] + arr[arr.size() / 2]) / 2;
+	}
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------//
+// Calculate the Mode
+double calculateMode(vector<double>& arr) {
+	unordered_map<double, int> frequency;
+	double mode = arr[0];
+	int maxFreq = 0;
+
+	// Populate frequency map and find the max frequency
+	for (double num : arr) {
+		frequency[num]++;
+		if (frequency[num] > maxFreq) {
+			maxFreq = frequency[num];
+			mode = num;
+		}
+	}
+
+	return mode;
+}
 
 void displayNumbers(vector<double>& allData) {
 	cout << "*** Summarized Statistics ***" << endl << endl;
@@ -142,6 +182,11 @@ void displayNumbers(vector<double>& allData) {
 		cout << val << " ";
 	}
 	cout << endl << endl;
+
+	// Calculate Mean, Median, Mode
+	cout << "The mean is " << calculateMean(allData) << endl;
+	cout << "The median is " << calculateMedian(allData) << endl;
+	cout << "The mode is " << calculateMode(allData) << endl;
 }
 
 
