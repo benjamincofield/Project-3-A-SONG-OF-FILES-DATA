@@ -15,16 +15,18 @@ using namespace std;
 
 
 vector<double> allData;
+vector<pair<string, double>> allChronologicalData;
+
 
 // Struct to store file size, dat
 struct FileData {
-	vector<double> data;
+	vector<pair<string, double>> dataWithTimeStamps;
+	vector<pair<string, double>> chronologicalData;
 	string fileName;
-	vector <string> timestamps;
 };
 
 //Global variables to hold file data for input/output
-FileData input_1, input_2, outputData;
+FileData outputData;
 
 //---------------------------------------------------------------------------------------------------------------------------------------//
 // Find Any Malforms
@@ -36,32 +38,64 @@ bool isMalform(FileData& fileData) {
 		return true;
 	}
 
-	// Check for tab character
 	string line;
-	while (getline(inputFile, line)) {}
-	size_t tabPos = line.find('\t');
-	if (tabPos == string::npos) {
-		cout << "Not an input file. Illegal content/structure detected. Please try again."<< endl;
-		inputFile.close();
-		return true;
-	}
-	double number;
+	bool hasValidContent = false;
 
 	while (getline(inputFile, line)) {
-		//Parse each line to double
-		try {
-			number = stod(line);
-		} catch(...) {
-			cout << "Not an input file. Illegal content/structure detected. Please try again."<< endl;
+		// Check for tab character in the line
+		if (line.find('\t') == string::npos) {
+			cout << "Not an input file. Illegal content/structure detected (missing tab). Please try again." << endl;
+			inputFile.close();
+			return true; // YES Malform
+		}
+
+		stringstream ss(line);
+		double number;
+		string timestamp;
+
+		// Attempt to parse the value and timestamp from the line
+		if (ss >> number && getline(ss, timestamp, '\t')) {
+			// If we successfully read a number and a timestamp, we have valid content
+			hasValidContent = true;
+		} else {
+			cout << "Not an input file. Illegal content/structure detected. Please try again." << endl;
 			inputFile.close();
 			return true; // YES Malform
 		}
 	}
-	inputFile.close();
-	return false; // NO Malform
 
+	inputFile.close();
+
+	if (!hasValidContent) {
+		cout << "No valid content found in the file." << endl;
+		return true; // Malform if no valid content found
+	}
+
+	return false; // NO Malform
+}
+//---------------------------------------------------------------------------------------------------------------------------------------//
+// Sort the data by its timestamp
+void sortDataByTimestamp(FileData& fileData) {
+	fileData.chronologicalData = fileData.dataWithTimeStamps; // Copy data
+	sort(fileData.chronologicalData.begin(), fileData.chronologicalData.end(),
+	     [](const pair<string, double>& first, const pair<string, double>& second) {
+	         return first.first < second.first; // Sort by timestamp
+	     });
+
+	// Add sorted data from this file to the global allChronologicalData
+	allChronologicalData.insert(allChronologicalData.end(),
+			    fileData.chronologicalData.begin(),
+			    fileData.chronologicalData.end());
 }
 
+// Display the sorted data by timestamp
+void displaySortDataByTimeStamp(const FileData& fileData) {
+	cout << "Chronologically sorted list of " << fileData.chronologicalData.size() << " values:\n";
+	for (const auto& value : fileData.chronologicalData) {
+		cout << value.second << " ";
+	}
+	cout << endl;
+}
 
 //---------------------------------------------------------------------------------------------------------------------------------------//
 // Read All Files
@@ -89,16 +123,16 @@ void readFile(FileData &fileData) {
 		double value;
 
 		if (ss >> value >> timestamp) {
-			fileData.data.push_back(value);
-			fileData.timestamps.push_back(timestamp); // Save the timestamp
+			fileData.dataWithTimeStamps.push_back(make_pair(timestamp, value));
 			allData.push_back(value);
 		}
+
 	}
 
 	// Display list of values read from file
-	cout << "The list of " << fileData.data.size() << " values in file " << fileData.fileName << " is: " << endl;
-	for (int i = 0; i < fileData.data.size(); ++i) {
-		cout << fileData.data[i] << "\t" << fileData.timestamps[i] << endl;
+	cout << "The list of " << fileData.dataWithTimeStamps.size() << " values in file " << fileData.fileName << " is: " << endl;
+	for (const auto& entry : fileData.dataWithTimeStamps) {
+		cout << entry.second << "\t" << entry.first << endl;
 	}
 	cout << endl;
 
@@ -189,7 +223,7 @@ double calculateMode(vector<double>& arr) {
 	return mode;
 }
 
-void displayNumbers(vector<double>& allData) {
+void displayNumbers(vector<double>& allData, const vector<FileData>& filesData) {
 	cout << "*** Summarized Statistics ***" << endl << endl;
 
 	// Display Sorted Values
@@ -204,6 +238,24 @@ void displayNumbers(vector<double>& allData) {
 	cout << "The mean is " << calculateMean(allData) << endl;
 	cout << "The median is " << calculateMedian(allData) << endl;
 	cout << "The mode is " << calculateMode(allData) << endl;
+
+	// Display sorted data by timestamps for each file
+	cout << "\nThe chronologically sorted list of " << allChronologicalData.size() << " values is:\n";
+	for (const auto& value : allChronologicalData) {
+		cout << value.second << " ";
+	}
+	cout << endl << endl;
+
+	// Extract only numeric data from allChronologicalData
+	vector<double> chronologicalValues;
+	for (const auto& value : allChronologicalData) {
+		chronologicalValues.push_back(value.second);
+	}
+
+	// Calculate Mean, Median, Mode
+	cout << "The mean is " << calculateMean(chronologicalValues) << endl;
+	cout << "The median is " << calculateMedian(chronologicalValues) << endl;
+	cout << "The mode is " << calculateMode(chronologicalValues) << endl;
 }
 
 
@@ -223,7 +275,25 @@ void writeFile(const string &outputFileName, vector<double>& allData) {
 	outStream << "The median is " << calculateMedian(allData) << endl;
 	outStream << "The mode is " << calculateMode(allData) << endl;
 
-	cout << "File " << outputFileName << " has been written to disk ***" << endl
+	// Display sorted data by timestamps for each file
+	outStream << "\nThe chronologically sorted list of " << allChronologicalData.size() << " values is:\n";
+	for (const auto& value : allChronologicalData) {
+		outStream << value.second << " ";
+	}
+	outStream << endl << endl;
+
+	// Extract only numeric data from allChronologicalData
+	vector<double> chronologicalValues;
+	for (const auto& value : allChronologicalData) {
+		chronologicalValues.push_back(value.second);
+	}
+
+	// Calculate Mean, Median, Mode
+	outStream << "The mean is " << calculateMean(chronologicalValues) << endl;
+	outStream << "The median is " << calculateMedian(chronologicalValues) << endl;
+	outStream << "The mode is " << calculateMode(chronologicalValues) << endl;
+
+	cout << "***File " << outputFileName << " has been written to disk ***" << endl
 	<< "*** Goodbye ***";
 	outStream.close();
 }
@@ -250,6 +320,7 @@ int main () {
 			break;
 		}
 		readFile(fileData);
+		sortDataByTimestamp(fileData);
 		filesData.push_back(fileData);
 	}
 
@@ -258,7 +329,7 @@ int main () {
 		mergeSort(allData, 0, allData.size() - 1);
 	}
 
-	displayNumbers(allData);
+	displayNumbers(allData, filesData);
 
 	cout << "Enter the output filename to save: ";
 	string outputFileName;
