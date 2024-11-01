@@ -52,7 +52,6 @@ bool isMalform(FileData& fileData) {
 
 }
 
-
 //---------------------------------------------------------------------------------------------------------------------------------------//
 // Read All Files
 void readFile(FileData &fileData) {
@@ -132,8 +131,26 @@ void mergeSort(vector<double>& arr, int left, int right) {
 		merge(arr, left, mid, right);
 	}
 }
-//---------------------------------------------------------------------------------------------------------------------------------------//
-// Main Function
+
+void displayNumbers(vector<double>& allData) {
+	cout << "*** Summarized Statistics ***" << endl << endl;
+
+	// Display Sorted Values
+	cout << "The orderly sorted list of " << allData.size() << " values is: " << endl;
+
+	for (const double val : allData) { // Iterate through each object
+		cout << val << " ";
+	}
+	cout << endl << endl;
+}
+
+
+
+void writeFile() {
+	return;
+}
+
+//----- MAIN ----//
 int main () {
 	int numOfFiles;
 	vector<FileData> filesData;
@@ -162,4 +179,10 @@ int main () {
 	if (!filesData.empty()) {
 		mergeSort(allData, 0, allData.size() - 1);
 	}
+
+	displayNumbers(allData);
+	//writeFile();
 }
+
+
+
